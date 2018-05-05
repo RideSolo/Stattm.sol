@@ -1,0 +1,23 @@
+STATTM TOKEN DETAILS
+
+Token Name                                                          Stattm
+Token Symbol	   	                                                  STT
+Blockchain provider                                                 ERC20, ETHEREUM   
+Transparency		                                                    Open source (public Github)
+
+Pre ICO Price 		                                                  0.00021 ETH ( 1 ETH = 4666 STT )
+ICO Price                                                           0.00036 ETH ( 1 ETH = 2800 STT )
+               
+STT maximum total supply		                                     100,100,100 STT
+Available through pre-ICO/ICO                      	             65,100,100 STT 
+Bounty                                                           2,000,000 STT
+Development partner product Gift                                 1,000,000 STT
+Team          	                                                 10,000,000 STT
+Advisors  + Partners integrations                                10,000,000 STT
+Reserve                                                          12,000,000 STT
+Token burn		                                                   All unsold during ICO campaigns
+
+Soft cap		                                                          Pre-ICO 500 ETH , ICO 7500 ETH
+Hard cap		                                                          Pre-ICO 3000 ETH , ICO 20000 ETH
+                                                                      (remaining tokens destroyed)
+Bonus structure		                                                    Community-based
