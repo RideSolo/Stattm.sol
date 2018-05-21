@@ -1,0 +1,14 @@
+# Logs
+logs
+*.log
+*.env
+
+
+# Directories used by tools like mocha & istanbul
+coverage
+shippable
+node_modules
+build
+merge
+
+# Dependency directory
