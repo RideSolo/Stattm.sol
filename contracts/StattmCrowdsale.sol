@@ -75,6 +75,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
     // low level token purchase function
     function buyTokens(address _investor) public  payable returns (uint256){
         require(_investor != address(0));
+        require(whitelist[msg.sender]);
         require(validPurchase());
         uint256 weiAmount = msg.value;
         uint256 tokens = _getTokenAmount(weiAmount);
