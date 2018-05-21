@@ -51,7 +51,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
     event TokenLimitReached(uint256 tokenRaised, uint256 purchasedToken);
     event Finalized();
 
-    function ComedyplayCrowdsale(
+    function StattmCrowdsale(
       address _owner,
       address _wallet
       ) public Crowdsale(_wallet) {
