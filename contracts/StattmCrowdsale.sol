@@ -4,9 +4,10 @@ import './Ownable.sol';
 import './SafeMath.sol';
 import './MintableToken.sol';
 import './Crowdsale.sol';
+import './BurnableToken.sol';
 
 
-contract StattmCrowdsale is Ownable, Crowdsale, MintableToken {
+contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
     using SafeMath for uint256;
 
     // TODO : Update the Time
@@ -167,6 +168,8 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken {
         require(_advisorFund != address(0));
         require(now < mainsaleEndTime);
         result = false;
+        uint256 unsoldTokens = totalTokensForSale - tokenAllocated;
+        burn(unsoldTokens);
         mint(_teamFund, tokensForTeam, owner);
         mint(_reserveFund, tokensForReserve, owner);
         mint(_bountyFund, tokensForBounty, owner);
@@ -174,6 +177,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken {
         mint(_advisorFund, tokensForAdvisors, owner);
         address contractBalance = this;
         wallet.transfer(contractBalance.balance);
+        uint256 unsoldTokens = totalTokensForSale - alreadyMinted;
         finishMinting();
         emit Finalized();
         result = true;
