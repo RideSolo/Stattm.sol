@@ -5,7 +5,7 @@ module.exports = function(deployer) {
   deployer.deploy(SafeMath);
   deployer.link(SafeMath, StattmCrowdsale);
   deployer.deploy(StattmCrowdsale,
-    "0x61A44075419C4402f6DE631341d875Ece6A3922e", // TODO : Update this address
-    "0x61A44075419C4402f6DE631341d875Ece6A3922e" // TODO : Update this address
+    "0xCDAF6Ad0F51067Baf43d07bBbF1e7114a4589fE4", // TODO : Update this address
+    "0xCDAF6Ad0F51067Baf43d07bBbF1e7114a4589fE4" // TODO : Update this address
     );
 };

@@ -50,20 +50,4 @@ contract MintableToken is StandardToken, Ownable {
         emit MintFinished();
         return true;
     }
-
-    /**
-     * Peterson's Law Protection
-     * Claim tokens
-     */
-    function claimTokens(address _token) public onlyOwner {
-        if (_token == 0x0) {
-           address ownerBalance = this;
-           owner.transfer(ownerBalance.balance);
-            return;
-        }
-        MintableToken token = MintableToken(_token);
-        uint256 balance = token.balanceOf(this);
-        token.transfer(owner, balance);
-        emit Transfer(_token, owner, balance);
-    }
 }
