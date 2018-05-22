@@ -5,9 +5,10 @@ import './SafeMath.sol';
 import './MintableToken.sol';
 import './Crowdsale.sol';
 import './BurnableToken.sol';
+import './KycContract.sol';
 
 
-contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
+contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, KycContract {
     using SafeMath for uint256;
 
     // TODO : Update the Time
@@ -75,7 +76,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
     // low level token purchase function
     function buyTokens(address _investor) public  payable returns (uint256){
         require(_investor != address(0));
-        require(whitelist[msg.sender]);
+        require(verifiedAddresses[msg.sender]);
         require(validPurchase());
         uint256 weiAmount = msg.value;
         uint256 tokens = _getTokenAmount(weiAmount);
@@ -178,7 +179,6 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken {
         mint(_advisorFund, tokensForAdvisors, owner);
         address contractBalance = this;
         wallet.transfer(contractBalance.balance);
-        uint256 unsoldTokens = totalTokensForSale - alreadyMinted;
         finishMinting();
         emit Finalized();
         result = true;
