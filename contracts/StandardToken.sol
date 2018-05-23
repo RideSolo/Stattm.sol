@@ -20,7 +20,7 @@ import './BasicToken.sol';
       * @param _to address The address which you want to transfer to
       * @param _value uint256 the amount of tokens to be transferred
       */
-     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+     function transferFrom(address _from, address _to, uint256 _value) public onlyPayloadSize(3) returns (bool) {
          require(_to != address(0));
          require(_value <= balances[_from]);
          require(_value <= allowed[_from][msg.sender]);
@@ -55,7 +55,7 @@ import './BasicToken.sol';
       * @param _spender address The address which will spend the funds.
       * @return A uint256 specifying the amount of tokens still available for the spender.
       */
-     function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+     function allowance(address _owner, address _spender) public onlyPayloadSize(2) constant returns (uint256 remaining) {
          return allowed[_owner][_spender];
      }
 
