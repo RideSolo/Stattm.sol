@@ -155,6 +155,12 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
       return withinPeriod && minimumContribution && withinCap;
     }
 
+    function readyForFinish() internal view returns(bool) {
+      bool endPeriod = now < mainsaleEndTime;
+      bool reachCap = tokenAllocated <= mainsaleCap;
+      return endPeriod || reachCap;
+    }
+
     // Finish: Mint Extra Tokens as needed before finalizing the Crowdsale.
     function finalize(
       address _teamFund,
@@ -168,7 +174,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
         require(_bountyFund != address(0));
         require(_partnersGiftFund != address(0));
         require(_advisorFund != address(0));
-        require(now < mainsaleEndTime);
+        require(readyForFinish());
         result = false;
         uint256 unsoldTokens = totalTokensForSale - tokenAllocated;
         burn(unsoldTokens);
