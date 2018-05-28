@@ -338,7 +338,7 @@ contract BurnableToken is BasicToken {
 contract KycContract is Ownable {
 
     mapping (address => bool) verifiedAddresses;
-    
+
     function isAddressVerified(address _address) public view returns (bool) {
         return verifiedAddresses[_address];
     }
@@ -386,12 +386,12 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
 
     // ============= Token Distribution ================
     uint256 public constant INITIAL_SUPPLY = 100100100 * (10 ** uint256(decimals));
-    uint256 public constant totalTokensForSale = 65100100 * (10 ** uint256(decimals));
-    uint256 public constant tokensForTeam = 10000000 * (10 ** uint256(decimals));
+    uint256 public constant totalTokensForSale = 65000000 * (10 ** uint256(decimals));
+    uint256 public constant tokensForTeam = 9100100 * (10 ** uint256(decimals));
     uint256 public constant tokensForReserve = 12000000 * (10 ** uint256(decimals));
     uint256 public constant tokensForBounty = 2000000 * (10 ** uint256(decimals));
     uint256 public constant tokensForPartnerGift = 1000000 * (10 ** uint256(decimals));
-    uint256 public constant tokensForAdvisors = 10000000 * (10 ** uint256(decimals));
+    uint256 public constant tokensForAdvisors =  11000000 * (10 ** uint256(decimals));
 
     // how many token units a buyer gets per wei
     uint256 public rate;
@@ -428,7 +428,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
     // low level token purchase function
     function buyTokens(address _investor) public  payable returns (uint256){
         require(_investor != address(0));
-        /* require(verifiedAddresses[msg.sender]); */
+        require(verifiedAddresses[msg.sender]);
         require(validPurchase());
         uint256 weiAmount = msg.value;
         uint256 tokens = _getTokenAmount(weiAmount);
@@ -507,6 +507,12 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
       return withinPeriod && minimumContribution && withinCap;
     }
 
+    function readyForFinish() internal view returns(bool) {
+      bool endPeriod = now < mainsaleEndTime;
+      bool reachCap = tokenAllocated <= mainsaleCap;
+      return endPeriod || reachCap;
+    }
+
     // Finish: Mint Extra Tokens as needed before finalizing the Crowdsale.
     function finalize(
       address _teamFund,
@@ -520,7 +526,7 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
         require(_bountyFund != address(0));
         require(_partnersGiftFund != address(0));
         require(_advisorFund != address(0));
-        require(now < mainsaleEndTime);
+        require(readyForFinish());
         result = false;
         uint256 unsoldTokens = totalTokensForSale - tokenAllocated;
         burn(unsoldTokens);

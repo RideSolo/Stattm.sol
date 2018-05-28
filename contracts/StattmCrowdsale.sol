@@ -34,12 +34,12 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
 
     // ============= Token Distribution ================
     uint256 public constant INITIAL_SUPPLY = 100100100 * (10 ** uint256(decimals));
-    uint256 public constant totalTokensForSale = 65100100 * (10 ** uint256(decimals));
-    uint256 public constant tokensForTeam = 10000000 * (10 ** uint256(decimals));
+    uint256 public constant totalTokensForSale = 65000000 * (10 ** uint256(decimals));
+    uint256 public constant tokensForTeam = 9100100 * (10 ** uint256(decimals));
     uint256 public constant tokensForReserve = 12000000 * (10 ** uint256(decimals));
     uint256 public constant tokensForBounty = 2000000 * (10 ** uint256(decimals));
     uint256 public constant tokensForPartnerGift = 1000000 * (10 ** uint256(decimals));
-    uint256 public constant tokensForAdvisors = 10000000 * (10 ** uint256(decimals));
+    uint256 public constant tokensForAdvisors =  11000000 * (10 ** uint256(decimals));
 
     // how many token units a buyer gets per wei
     uint256 public rate;
