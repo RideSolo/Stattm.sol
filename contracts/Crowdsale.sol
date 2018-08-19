@@ -18,6 +18,7 @@ contract Crowdsale is Ownable {
     // amount of raised money in wei
     uint256 public PresaleWeiRaised;
     uint256 public mainsaleWeiRaised;
+    uint256 public ItosaleWeiRaised;
     uint256 public tokenAllocated;
 
     function Crowdsale(address _wallet) public {

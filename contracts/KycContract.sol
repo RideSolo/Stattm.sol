@@ -5,7 +5,7 @@ import './Ownable.sol';
 contract KycContract is Ownable {
 
     mapping (address => bool) verifiedAddresses;
-    
+
     function isAddressVerified(address _address) public view returns (bool) {
         return verifiedAddresses[_address];
     }
