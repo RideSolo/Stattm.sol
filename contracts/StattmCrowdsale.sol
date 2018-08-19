@@ -234,8 +234,6 @@ contract StattmCrowdsale is Ownable, Crowdsale, MintableToken, BurnableToken, Ky
     function tokenBurn() private onlyOwner {
       require(!goalReached());
       if (now <= presaleEndTime && now <= itosaleStartTime){
-          uint unsold = presaleCap.sub(PresaleWeiRaised);
-          burn(unsold);
           for (uint cnt = 0; cnt < preico_investers.length; cnt++) {
             address investor = preico_investers[cnt];
             investor.transfer(preico_deposited[investor]);
