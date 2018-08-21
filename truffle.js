@@ -17,7 +17,7 @@ var mnemonic = secretData.SECRET_MNEMONIC;
 var providerRopsten = new HDWalletProvider(mnemonic, infuraRopstenUrl);
 var providerMain = new HDWalletProvider(mnemonic, infuraMainUrl);
 
-console.log("Public key = "+providerMain.addresses[0]);
+console.log("Public key = "+providerMain.address);
 
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
