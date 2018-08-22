@@ -17,12 +17,12 @@ contract StattmICO is Ownable{
     address public beneficiary;
 
     // 2019-3-28 00:00:00 GMT - start time for main sale
-    uint256 private constant mainsaleStartTime = 1553799482;
+    uint256 public constant mainsaleStartTime = 1553799482;
 
     // 2019-5-11 23:59:59 GMT - end time for main sale
-    uint256 private constant mainsaleEndTime = 1557601082;
+    uint256 public constant mainsaleEndTime = 1557601082;
 
-    uint256 private constant withdrawEndTime = 1557601082 + 30 days;
+    uint256 public constant withdrawEndTime = 1557601082 + 30 days;
 
     mapping(address => uint256) public ethPayed;
     mapping(address => uint256) public tokensToTransfer;
@@ -53,15 +53,31 @@ contract StattmICO is Ownable{
         }
     }
 
+    function forceReturn(address _adr) public onlyOwner{
+
+          if (token.isWhiteListed(_adr) == false) {
+            //send tokens, presale successful
+            require(msg.value == 0);
+            uint256 amountToSend = tokensToTransfer[msg.sender];
+            tokensToTransfer[msg.sender] = 0;
+            ethPayed[msg.sender] = 0;
+            totalTokensToTransfer=totalTokensToTransfer-amountToSend;
+            require(token.transfer(msg.sender, amountToSend));
+            softCapReached = totalTokensToTransfer >= softCapInTokens;
+          }
+        }
+
     function() public payable {
         require(now > mainsaleStartTime);
         if (now > mainsaleEndTime && (softCapReached == false || token.isWhiteListed(msg.sender) == false)) {
             //return funds, presale unsuccessful or user not whitelisteed
             require(msg.value == 0);
             uint256 amountToReturn = ethPayed[msg.sender];
+            totalTokensToTransfer=totalTokensToTransfer-tokensToTransfer[msg.sender];
             tokensToTransfer[msg.sender] = 0;
             ethPayed[msg.sender] = 0;
             msg.sender.transfer(amountToReturn);
+            softCapReached = totalTokensToTransfer >= softCapInTokens;
         }
         if (now > mainsaleEndTime && softCapReached == true && token.isWhiteListed(msg.sender)) {
             //send tokens, presale successful
@@ -87,10 +103,6 @@ contract StattmICO is Ownable{
         if (now > mainsaleEndTime && softCapReached == true && msg.sender == owner) {
             //sale end successfully all eth is send to beneficiary
             beneficiary.transfer(address(this).balance);
-            token.burn();
-        }
-
-        if (now > mainsaleEndTime && softCapReached == false) {
             token.burn();
         }
 

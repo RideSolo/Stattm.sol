@@ -17,12 +17,12 @@ contract StattmITO is Ownable{
     address public beneficiary;
 
     // 2019-1-15 00:00:00 GMT - start time for ito sale
-    uint256 private constant itosaleStartTime = 1547578682;
+    uint256 public constant itosaleStartTime = 1547578682;
 
     // 2019-2-28 00:00:00 GMT - start time for ito sale
-    uint256 private constant itosaleEndTime = 1551380282;
+    uint256 public constant itosaleEndTime = 1551380282;
 
-    uint256 private constant withdrawEndTime = 1551380282 + 30 days;
+    uint256 public constant withdrawEndTime = 1551380282 + 30 days;
 
     mapping(address => uint256) public ethPayed;
     mapping(address => uint256) public tokensToTransfer;
@@ -53,14 +53,30 @@ contract StattmITO is Ownable{
         }
     }
 
+        function forceReturn(address _adr) public onlyOwner{
+
+              if (token.isWhiteListed(_adr) == false) {
+                //send tokens, presale successful
+                require(msg.value == 0);
+                uint256 amountToSend = tokensToTransfer[msg.sender];
+                tokensToTransfer[msg.sender] = 0;
+                ethPayed[msg.sender] = 0;
+                totalTokensToTransfer=totalTokensToTransfer-amountToSend;
+                softCapReached = totalTokensToTransfer >= softCapInTokens;
+                require(token.transfer(msg.sender, amountToSend));
+              }
+            }
+
     function() public payable {
         require(now > itosaleStartTime);
         if (now > itosaleEndTime && (softCapReached == false || token.isWhiteListed(msg.sender) == false)) {
             //return funds, presale unsuccessful or user not whitelisteed
             require(msg.value == 0);
             uint256 amountToReturn = ethPayed[msg.sender];
+            totalTokensToTransfer=totalTokensToTransfer-tokensToTransfer[msg.sender];
             tokensToTransfer[msg.sender] = 0;
             ethPayed[msg.sender] = 0;
+            softCapReached = totalTokensToTransfer >= softCapInTokens;
             msg.sender.transfer(amountToReturn);
         }
         if (now > itosaleEndTime && softCapReached == true && token.isWhiteListed(msg.sender)) {
@@ -87,10 +103,6 @@ contract StattmITO is Ownable{
         if (now > withdrawEndTime && softCapReached == true && msg.sender == owner) {
             //sale end successfully all eth is send to beneficiary
             beneficiary.transfer(address(this).balance);
-            token.burn();
-        }
-
-        if (now > itosaleEndTime && softCapReached == false) {
             token.burn();
         }
 

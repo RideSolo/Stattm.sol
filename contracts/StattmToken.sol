@@ -30,7 +30,7 @@ contract StattmToken is MintableToken {
         mint(address(privateSale), (10 ** decimals) * (5000000));
         mint(address(ito), (10 ** decimals) * (25000000));
         mint(address(ico), (10 ** decimals) * (35000000));
-        mint(address(projectManagementAndAirdrop), (10 ** decimals) * (35000000));
+        mint(address(projectManagementAndAirdrop), (10 ** decimals) * (35100100));
         mintingFinished = true;
     }
 }
