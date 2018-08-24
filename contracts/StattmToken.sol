@@ -4,7 +4,7 @@ import 'zeppelin-solidity/contracts/token/ERC20/MintableToken.sol';
 contract StattmToken is MintableToken {
 
     string public constant name = "Stattm";
-    string public constant symbol = "STM";
+    string public constant symbol = "STTM";
 
     uint256 public constant decimals = 18;
     mapping(address => bool) public isWhiteListed;
