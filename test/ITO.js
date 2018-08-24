@@ -62,7 +62,7 @@ contract('PrivateSale', async function(accounts) {
   describe('funds return',async function(){
     before(async function(){
       token = await StattmToken.deployed();
-      privSale = await StattmPrivSale.deployed();
+      privSale = await StattmITO.deployed();
       startTime = (await privSale.saleStartTime()).toNumber();
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();
@@ -124,20 +124,15 @@ contract('PrivateSale', async function(accounts) {
     });
 
     it("should return funds if softcap reached but user not whiteListed", async function() {
-      error=true;
+    //  error=true;
       var startBalance = web3.eth.getBalance(accounts[3]);
-      await token.removeFromWhitelist(accounts[3],{from:accounts[2]});
-      console.log("step 1");
       await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
-      console.log("step 2");
       await privSale.sendTransaction({value:valueToSend,from:accounts[4]});
-      console.log("step 3");
+      await token.removeFromWhitelist(accounts[3],{from:accounts[2]});
       await privSale.setNow(endTime+1000);
-      console.log("step 4");
-      await privSale.sendTransaction({value:0,from:accounts[3],gas:200000});
-      console.log("step 5");
+      await privSale.sendTransaction({value:0,from:accounts[3]});
       var endBalance = web3.eth.getBalance(accounts[3]);
-      error=false;
+      //  error=false;
       assert.isBelow(startBalance-endBalance,  parseInt(web3.toWei(1,'ether')), "softCapReached incorrect");
     });
 
@@ -200,7 +195,7 @@ contract('PrivateSale', async function(accounts) {
   describe('softcap',async function(){
     before(async function(){
       token = await StattmToken.deployed();
-      privSale = await StattmPrivSale.deployed();
+      privSale = await StattmITO.deployed();
       console.log( (await privSale.saleStartTime()));
       startTime = (await privSale.saleStartTime()).toNumber();
       endTime = (await privSale.saleEndTime()).toNumber();
@@ -208,6 +203,7 @@ contract('PrivateSale', async function(accounts) {
       hardCapLevel = (new web3.BigNumber(await privSale.hardCapInTokens())).toString(10);
       softCapLevel = (await privSale.softCapInTokens()).toNumber();
       console.log("hardCapLevel = ",hardCapLevel);
+      console.log("softCapLevel = ",softCapLevel);
       baseSnapId = await makeSnapshot();
       await increaseTimeTo(startTime+1000);
     });
@@ -270,7 +266,7 @@ contract('PrivateSale', async function(accounts) {
   describe('timeline constrains',async function(){
     before(async function(){
       token = await StattmToken.deployed();
-      privSale = await StattmPrivSale.deployed();
+      privSale = await StattmITO.deployed();
       startTime = (await privSale.saleStartTime()).toNumber();
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();

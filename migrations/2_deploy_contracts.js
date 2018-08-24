@@ -13,6 +13,7 @@ module.exports = function(deployer,network,accounts) {
     _benef = "0x30E9f3188a723613048932c2C5e497D1981CeF81";
     _operator = "0x30E9f3188a723613048932c2C5e497D1981CeF81";
   }
+  console.log("Dev="+_dev);
   var data = {};
   return deployer.deploy(StattmToken)
   .then(()=>{
