@@ -1,3 +1,0 @@
-Stattm solidity smart contract based in Stattm Cryptocurrency allocation.
-
-all rights reserved 2018

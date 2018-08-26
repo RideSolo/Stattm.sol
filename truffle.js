@@ -1,41 +1,51 @@
+
+var secretData = require("./secrets.json");
 require('dotenv').config();
-const Web3 = require("web3");
-const web3 = new Web3();
-const WalletProvider = require("truffle-wallet-provider");
-const Wallet = require('ethereumjs-wallet');
+require('babel-register');
+require('babel-polyfill');
 
-var ropstenPrivateKey = new Buffer(process.env["ROPSTEN_PRIVATE_KEY"], "hex");
-var ropstenWallet = Wallet.fromPrivateKey(ropstenPrivateKey);
-var ropstenProvider = new WalletProvider(ropstenWallet, "https://ropsten.infura.io/");
+require('babel-node-modules')([
+  'zeppelin-solidity'
+])
 
-var mainnetPrivateKey = new Buffer(process.env["MAINNET_PRIVATE_KEY"], "hex");
-var mainnetWallet = Wallet.fromPrivateKey(mainnetPrivateKey);
-var mainnetProvider = new WalletProvider(mainnetWallet, "https://mainnet.infura.io/");
+var HDWalletProvider = require("truffle-hdwallet-provider");
 
+
+var infuraRopstenUrl = secretData.INFURA_ROPSTEN_URL;
+var infuraMainUrl = secretData.INFURA_MAIN_URL;
+var mnemonic = secretData.SECRET_MNEMONIC;
+var providerRopsten = new HDWalletProvider(mnemonic, infuraRopstenUrl);
+var providerMain = new HDWalletProvider(mnemonic, infuraMainUrl);
+
+console.log("Public key = "+providerMain.address);
 
 module.exports = {
+  // See <http://truffleframework.com/docs/advanced/configuration>
+  // to customize your Truffle configuration!
   networks: {
-    development: {
-      host: "localhost",
+   development: {
+     host: 'localhost',
+     port: 8545,
+     gas: 5000000,
+     network_id: '*', // eslint-disable-line camelcase
+   },
+    test: {
+      host: 'localhost',
       port: 8545,
-      gas: 4600000,
-      network_id: "*" // Match any network id
+      gas: 5000000,
+      network_id: '*', // eslint-disable-line camelcase
     },
     ropsten: {
-      provider: ropstenProvider,
-      network_id: 3,
-      gas: 4600000
+      provider: providerRopsten,
+      network_id: 3, // eslint-disable-line camelcase
+      gasPrice: "10000000000",
+      gas: 5000000,
     },
-    mainnet: {
-      provider: mainnetProvider,
-      network_id: 1,
-      gas: 4600000
+    main: {
+      provider: providerMain,
+      gasPrice: "1100000000",
+      network_id: 99, // eslint-disable-line camelcase
+      gas: 5000000,
     }
-  },
-  solc: {
-    optimizer: {
-      enabled: true,
-      runs: 200
-    }
-  }
+ }
 };
