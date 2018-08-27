@@ -24,7 +24,7 @@ module.exports = function(deployer,network,accounts) {
         data['tok']=instance;
         var deploymentsCount = 0;
         console.log('token deployed');
-        deployer.deploy(StattmPrivSale,data['tok'].address,_benef,_dev).then(()=>{
+        deployer.deploy(StattmPrivSale,data['tok'].address,_dev,_benef).then(()=>{
           console.log('StattmPrivSale deploying');
           StattmPrivSale.deployed().then((instance)=>{
             console.log('StattmPrivSale deployed');

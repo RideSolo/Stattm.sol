@@ -3,7 +3,6 @@ var StattmPrivSale = artifacts.require("./StattmPrivSale.sol");
 var StattmICO = artifacts.require("./StattmICO.sol");
 var StattmITO = artifacts.require("./StattmITO.sol");
 import { advanceBlock } from 'zeppelin-solidity/test/helpers/advanceToBlock';
-import { increaseTimeTo, duration } from 'zeppelin-solidity/test/helpers/increaseTime';
 function makeSnapshot () {
   var id = Date.now();
 
@@ -201,10 +200,11 @@ contract('PrivateSale', async function(accounts) {
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();
       hardCapLevel = (new web3.BigNumber(await privSale.hardCapInTokens())).toString(10);
-      softCapLevel = (await privSale.softCapInTokens()).toNumber();
+      softCapLevel = (new web3.BigNumber(await privSale.softCapInTokens())).toString(10);
       console.log("hardCapLevel = ",hardCapLevel);
+      console.log("softCapLevel = ",softCapLevel);
       baseSnapId = await makeSnapshot();
-      await increaseTimeTo(startTime+1000);
+      await privSale.setNow(startTime+1000);
     });
 
     after(async function(){
@@ -232,7 +232,10 @@ contract('PrivateSale', async function(accounts) {
         return;
       }
       var valueToSend = new web3.BigNumber(softCapLevel);
-      valueToSend = valueToSend / (new web3.BigNumber(price))-1;
+
+      valueToSend = valueToSend.div(new web3.BigNumber(price)).floor().sub(1);
+      console.log("Eth left ",valueToSend.toString(10));
+      console.log("Price ",price.toString());
       await privSale.sendTransaction({value:valueToSend});
       var softCapReached = await privSale.softCapReached();
       assert.equal(softCapReached, false, "softCapReached incorrect");
@@ -241,7 +244,9 @@ contract('PrivateSale', async function(accounts) {
     it("softCapReached should turn true if more than softCap payed", async function() {
       var price = (await privSale.getCurrentPrice());
       var valueToSend = new web3.BigNumber(softCapLevel);
-      valueToSend = valueToSend / (new web3.BigNumber(price))+100;
+      valueToSend = valueToSend.div(new web3.BigNumber(price)).add(100).floor();
+      console.log("Eth left ",valueToSend.toString(10));
+      console.log("Price ",price.toString());
       await privSale.sendTransaction({value:valueToSend});
       var softCapReached = await privSale.softCapReached();
       assert.equal(softCapReached, true, "softCapReached incorrect");
@@ -251,12 +256,17 @@ contract('PrivateSale', async function(accounts) {
     it("softCapReached should turn true if more than softCap payed in many steps", async function() {
       var price = (await privSale.getCurrentPrice());
       var sum = new web3.BigNumber(softCapLevel);
-      sum = sum / (new web3.BigNumber(price))+100;
+      sum = sum.div(new web3.BigNumber(price)).add(10000).floor();
+      console.log("Eth left ",sum.toString(10));
+      console.log("Price ",price.toString());
       for(var i=0;i<10;i++){
-          await privSale.sendTransaction({value:Math.floor(sum/(10-i))});
-          sum = sum - Math.floor(sum/(10-i));
+          var amountToPay = sum.div(10-i).floor();
+          await privSale.sendTransaction({value:amountToPay});
+          sum = sum.sub(amountToPay);
       }
       var softCapReached = await privSale.softCapReached();
+      var totalTokensToTransfer = await privSale.totalTokensToTransfer();
+      console.log("totalTokensToTransfer ",totalTokensToTransfer.toString(10));
       assert.equal(softCapReached, true, "softCapReached incorrect");
     });
 
@@ -270,7 +280,7 @@ contract('PrivateSale', async function(accounts) {
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();
       baseSnapId = await makeSnapshot();
-      await increaseTimeTo(startTime-1000);
+      await privSale.setNow(startTime-1000);
     })
     after(async function(){
      await revertSnapshot(parseInt(baseSnapId.result,16));
@@ -306,7 +316,7 @@ contract('PrivateSale', async function(accounts) {
 
 
     it("should fail eth transaction after presale", async function() {
-      await increaseTimeTo(endTime+1000);
+      await privSale.setNow(endTime+1000);
       var promise = privSale.sendTransaction({
         value:web3.toWei(1,'ether')
       })
@@ -314,12 +324,13 @@ contract('PrivateSale', async function(accounts) {
     });
 
     it("should not fail no eth transaction after presale", async function() {
-      await increaseTimeTo(endTime+1000);
+      await privSale.setNow(endTime+1000);
       await privSale.sendTransaction({
         value:web3.toWei(0,'ether')
       })
     });
 
   });
+
 
 });
