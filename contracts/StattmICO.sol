@@ -26,19 +26,19 @@ contract StattmICO is AbstractCrowdsale{
         buy();
     }
     function getCurrentPrice() public constant returns(uint256) {
-        if (now - saleStartTime() < 10 days) {
+        if (getNow() - saleStartTime() < 10 days) {
             return 2000;
         } else
-        if (now - saleStartTime() < 20 days) {
+        if (getNow() - saleStartTime() < 20 days) {
             return 1765;
         } else
-        if (now - saleStartTime() < 30 days) {
+        if (getNow() - saleStartTime() < 30 days) {
             return 1580;
         } else
-        if (now - saleStartTime() < 40 days) {
+        if (getNow() - saleStartTime() < 40 days) {
             return 1430;
         } else
-        if (now - saleStartTime() < 45 days) {
+        if (getNow() - saleStartTime() < 45 days) {
             return 1200;
         } else {
             return 1200;

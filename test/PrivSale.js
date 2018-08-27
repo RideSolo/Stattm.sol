@@ -2,8 +2,6 @@ var StattmToken = artifacts.require("./StattmToken.sol");
 var StattmPrivSale = artifacts.require("./StattmPrivSale.sol");
 var StattmICO = artifacts.require("./StattmICO.sol");
 var StattmITO = artifacts.require("./StattmITO.sol");
-import { advanceBlock } from 'zeppelin-solidity/test/helpers/advanceToBlock';
-import { increaseTimeTo, duration } from 'zeppelin-solidity/test/helpers/increaseTime';
 function makeSnapshot () {
   var id = Date.now();
 
@@ -71,15 +69,15 @@ contract('PrivateSale', async function(accounts) {
       baseSnapId = await makeSnapshot();
       console.log("baseSnapId = ",baseSnapId.result);
       console.log("hardCapLevel = ",hardCapLevel);
+      console.log("softCapLevel = ",softCapLevel);
 
       await privSale.setNow(startTime+1000);
 
       var price = (await privSale.getCurrentPrice());
-      valueToSend = (new web3.BigNumber(softCapLevel))/2;
-      valueToSend = valueToSend / (new web3.BigNumber(price))+1000;
+      valueToSend = (new web3.BigNumber(softCapLevel)).div(2).floor();
+      valueToSend = valueToSend.div(new web3.BigNumber(price)).floor().add(1000);
       testedAmount = valueToSend;
-
-      await privSale.sendTransaction({value:valueToSend,from:accounts[2]});
+      console.log("valueToSend = ",valueToSend.toString(10));
     });
 
     after(async function(){
@@ -114,8 +112,8 @@ contract('PrivateSale', async function(accounts) {
         return;
       }
       var startBalance = web3.eth.getBalance(accounts[3]);
+      await token.addToWhitelist(accounts[3],{from:accounts[3]});
       await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
-      await token.addToWhitelist(accounts[3],{from:accounts[2]});
       await privSale.setNow(endTime+1000);
       await privSale.sendTransaction({value:0,from:accounts[3]});
       var endBalance = web3.eth.getBalance(accounts[3]);
@@ -123,52 +121,27 @@ contract('PrivateSale', async function(accounts) {
       assert.isBelow(startBalance-endBalance, parseInt(web3.toWei(1,'ether')), "softCapReached incorrect");
     });
 
-    it("should return funds if softcap reached but user not whiteListed", async function() {
-      error=true;
-      var startBalance = web3.eth.getBalance(accounts[3]);
-      await token.removeFromWhitelist(accounts[3],{from:accounts[2]});
-      console.log("step 1");
-      await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
-      console.log("step 2");
-      await privSale.sendTransaction({value:valueToSend,from:accounts[4]});
-      console.log("step 3");
-      await privSale.setNow(endTime+1000);
-      console.log("step 4");
-      await privSale.sendTransaction({value:0,from:accounts[3],gas:200000});
-      console.log("step 5");
-      var endBalance = web3.eth.getBalance(accounts[3]);
-      error=false;
-      assert.isBelow(startBalance-endBalance,  parseInt(web3.toWei(1,'ether')), "softCapReached incorrect");
-    });
-
-    it("should return funds if softcap not reached and user not whiteListed", async function() {
+    it("should revert if user not whiteListed", async function() {
     //  error=true;
-    if(softCapLevel===0){
-      //not applicable for softcap 0
-      return;
-    }
       var startBalance = web3.eth.getBalance(accounts[3]);
-      await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
       await token.removeFromWhitelist(accounts[3],{from:accounts[2]});
-      await privSale.setNow(endTime+1000);
-      await privSale.sendTransaction({value:0,from:accounts[3]});
-      var endBalance = web3.eth.getBalance(accounts[3]);
-      assert.isBelow(startBalance-endBalance,  parseInt(web3.toWei(1,'ether')), "softCapReached incorrect");
-    //  error=false;
+      var prom = privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
+      assertRevert(prom);
     });
 
     it("should not return funds if softcap reached and user whiteListed", async function() {
   //    error=true;
       var startBalance = web3.eth.getBalance(accounts[3]);
       var privSaleBalance = web3.eth.getBalance(privSale.address);
-      console.log(privSaleBalance.toString());
+      await token.addToWhitelist(accounts[3],{from:accounts[2]});
+      await token.addToWhitelist(accounts[4],{from:accounts[2]});
+      console.log("privSaleBalance"+privSaleBalance.toString());
       await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
       privSaleBalance = web3.eth.getBalance(privSale.address);
-      console.log(privSaleBalance.toString());
+      console.log("privSaleBalance"+privSaleBalance.toString());
       await privSale.sendTransaction({value:valueToSend*2,from:accounts[4]});
       privSaleBalance = web3.eth.getBalance(privSale.address);
-      console.log(privSaleBalance.toString());
-      await token.addToWhitelist(accounts[3],{from:accounts[2]});
+      console.log("privSaleBalance"+privSaleBalance.toString());
       var softCapReached = await privSale.softCapReached();
       await privSale.setNow(endTime+1000);
       var data = await privSale.sendTransaction({value:0,from:accounts[3]});
@@ -180,6 +153,8 @@ contract('PrivateSale', async function(accounts) {
     it("should send tokens to user if softcap reached and user whiteListed", async function() {
     //  error=true;
       var startBalance = web3.eth.getBalance(accounts[3]);
+      await token.addToWhitelist(accounts[3],{from:accounts[2]});
+      await token.addToWhitelist(accounts[4],{from:accounts[2]});
       await privSale.sendTransaction({value:web3.toWei(1,'ether'),from:accounts[3]});
       await privSale.sendTransaction({value:valueToSend,from:accounts[4]});
       var price = (await privSale.getCurrentPrice()).toNumber();
@@ -201,21 +176,22 @@ contract('PrivateSale', async function(accounts) {
     before(async function(){
       token = await StattmToken.deployed();
       privSale = await StattmPrivSale.deployed();
-      console.log( (await privSale.saleStartTime()));
       startTime = (await privSale.saleStartTime()).toNumber();
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();
       hardCapLevel = (new web3.BigNumber(await privSale.hardCapInTokens())).toString(10);
-      softCapLevel = (await privSale.softCapInTokens()).toNumber();
+      softCapLevel = (new web3.BigNumber(await privSale.softCapInTokens())).toString(10);
       console.log("hardCapLevel = ",hardCapLevel);
+      console.log("softCapLevel = ",softCapLevel);
       baseSnapId = await makeSnapshot();
-      await increaseTimeTo(startTime+1000);
+      await privSale.setNow(startTime+1000);
     });
 
     after(async function(){
      await revertSnapshot(parseInt(baseSnapId.result,16));
     })
     beforeEach(async function(){
+      await token.addToWhitelist(accounts[3],{from:accounts[2]});
       snapId = await makeSnapshot();
       console.log("SnapId = ",snapId.result);
     });
@@ -232,13 +208,16 @@ contract('PrivateSale', async function(accounts) {
 
     it("softCapReached should stay false if less than softCap payed", async function() {
       var price = (await privSale.getCurrentPrice());
-      if(softCapLevel===0){
+      if(softCapLevel=="0"){
         //not applicable for softcap 0
         return;
       }
       var valueToSend = new web3.BigNumber(softCapLevel);
-      valueToSend = valueToSend / (new web3.BigNumber(price))-1;
-      await privSale.sendTransaction({value:valueToSend});
+
+      valueToSend = valueToSend.div(new web3.BigNumber(price)).floor().sub(1);
+      console.log("Eth left ",valueToSend.toString(10));
+      console.log("Price ",price.toString());
+      await privSale.sendTransaction({value:valueToSend,from:accounts[3]});
       var softCapReached = await privSale.softCapReached();
       assert.equal(softCapReached, false, "softCapReached incorrect");
     });
@@ -246,8 +225,11 @@ contract('PrivateSale', async function(accounts) {
     it("softCapReached should turn true if more than softCap payed", async function() {
       var price = (await privSale.getCurrentPrice());
       var valueToSend = new web3.BigNumber(softCapLevel);
-      valueToSend = valueToSend / (new web3.BigNumber(price))+100;
-      await privSale.sendTransaction({value:valueToSend});
+      valueToSend = valueToSend.div(new web3.BigNumber(price)).add(new web3.BigNumber("1000000000000000000")).floor();
+      console.log("Eth left ",valueToSend.toString(10));
+      console.log("Price ",price.toString());
+      await privSale.sendTransaction({value:valueToSend,from:accounts[3]});
+      console.log("Transaction Done ");
       var softCapReached = await privSale.softCapReached();
       assert.equal(softCapReached, true, "softCapReached incorrect");
     });
@@ -256,12 +238,17 @@ contract('PrivateSale', async function(accounts) {
     it("softCapReached should turn true if more than softCap payed in many steps", async function() {
       var price = (await privSale.getCurrentPrice());
       var sum = new web3.BigNumber(softCapLevel);
-      sum = sum / (new web3.BigNumber(price))+100;
+      sum = sum.div(new web3.BigNumber(price)).add(new web3.BigNumber("1000000000000000000")).floor();
+      console.log("Eth left ",sum.toString(10));
+      console.log("Price ",price.toString());
       for(var i=0;i<10;i++){
-          await privSale.sendTransaction({value:Math.floor(sum/(10-i))});
-          sum = sum - Math.floor(sum/(10-i));
+          var amountToPay = sum.div(10-i).floor();
+          await privSale.sendTransaction({value:amountToPay,from:accounts[3]});
+          sum = sum.sub(amountToPay);
       }
       var softCapReached = await privSale.softCapReached();
+      var totalTokensToTransfer = await privSale.totalTokensToTransfer();
+      console.log("totalTokensToTransfer ",totalTokensToTransfer.toString(10));
       assert.equal(softCapReached, true, "softCapReached incorrect");
     });
 
@@ -275,13 +262,14 @@ contract('PrivateSale', async function(accounts) {
       endTime = (await privSale.saleEndTime()).toNumber();
       withdrawTime = (await privSale.withdrawEndTime()).toNumber();
       baseSnapId = await makeSnapshot();
-      await increaseTimeTo(startTime-1000);
+      await privSale.setNow(startTime-1000);
     })
     after(async function(){
      await revertSnapshot(parseInt(baseSnapId.result,16));
     })
     beforeEach(async function(){
       snapId = await makeSnapshot();
+      await token.addToWhitelist(accounts[0],{from:accounts[2]});
       console.log("SnapId = ",snapId.result);
     });
     afterEach(async function(){
@@ -289,42 +277,43 @@ contract('PrivateSale', async function(accounts) {
       await revertSnapshot(parseInt(snapId.result,16));
     });
 
-    it("should have balance of 5000000", async function() {
+    it("should have balance of ...", async function() {
       var balance = (new web3.BigNumber(await token.balanceOf(privSale.address))).toString(10);
       assert.equal(hardCapLevel, balance, "incorrect balance");
 
     });
 
     it("should fail no eth transaction before presale", async function() {
+      console.log("account[0] = "+accounts[0]);
       var promise = privSale.sendTransaction({
-        value:0
-      })
+        value:0,from:accounts[0]});
+      console.log("account[0] = "+accounts[0]);
       assertRevert(promise);
     });
 
     it("should fail eth transaction before presale", async function() {
       var promise = privSale.sendTransaction({
-        value:web3.toWei(1,'ether')
-      })
+        value:web3.toWei(1,'ether'),from:accounts[0]})
+      console.log("account[0] = "+accounts[0]);
       assertRevert(promise);
     });
 
 
     it("should fail eth transaction after presale", async function() {
-      await increaseTimeTo(endTime+1000);
+      await privSale.setNow(endTime+1000);
       var promise = privSale.sendTransaction({
-        value:web3.toWei(1,'ether')
-      })
+        value:web3.toWei(1,'ether'),from:accounts[0]})
+      console.log("account[0] = "+accounts[0]);
       assertRevert(promise);
     });
 
     it("should not fail no eth transaction after presale", async function() {
-      await increaseTimeTo(endTime+1000);
+      await privSale.setNow(endTime+1000);
       await privSale.sendTransaction({
-        value:web3.toWei(0,'ether')
-      })
+        value:web3.toWei(0,'ether'),from:accounts[0]})
     });
 
   });
+
 
 });

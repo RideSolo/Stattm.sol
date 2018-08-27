@@ -25,7 +25,7 @@ contract AbstractCrowdsale is Ownable{
 
     mapping(address => uint256) public ethPayed;
     mapping(address => uint256) public tokensToTransfer;
-    uint256 private totalTokensToTransfer = 0;
+    uint256 public totalTokensToTransfer = 0;
 
     constructor(address _token, address _beneficiary) public {
         token = StattmToken(_token);
@@ -56,14 +56,17 @@ contract AbstractCrowdsale is Ownable{
     }
 
     function setNow(uint256 _n) public returns(uint256){
-      _now = _n;
+/*Allowed only in tests*///      _now = _n;
+      return now;
     }
     event Stage(uint256 blockNumber,uint256 index);
+    event Stage2(address adr,uint256 index);
     function buy() public payable {
         require(getNow()  > saleStartTime());
         if (getNow()  > saleEndTime()
           && (softCapReached == false
           || token.isWhiteListed(msg.sender) == false)) {
+
             //return funds, presale unsuccessful or user not whitelisteed
             emit Stage(block.number,10);
             require(msg.value == 0);
@@ -76,10 +79,12 @@ contract AbstractCrowdsale is Ownable{
             emit Stage(block.number,12);
             msg.sender.transfer(amountToReturn);
             emit Stage(block.number,13);
+
         }
         if (getNow()  > saleEndTime()
           && softCapReached == true
           && token.isWhiteListed(msg.sender)) {
+
             emit Stage(block.number,20);
             //send tokens, presale successful
             require(msg.value == 0);
@@ -89,6 +94,7 @@ contract AbstractCrowdsale is Ownable{
             ethPayed[msg.sender] = 0;
             require(token.transfer(msg.sender, amountToSend));
             emit Stage(block.number,22);
+
         }
         if (getNow()  <= saleEndTime() && getNow()  > saleStartTime()) {
             emit Stage(block.number,30);
@@ -118,8 +124,10 @@ contract AbstractCrowdsale is Ownable{
         }
         if (getNow()  > withdrawEndTime() && softCapReached == true && msg.sender == owner) {
             emit Stage(block.number,60);
+            emit Stage(address(this).balance,60);
             //sale end successfully all eth is send to beneficiary
             beneficiary.transfer(address(this).balance);
+            emit Stage(address(this).balance,60);
             emit Stage(block.number,61);
             token.burn();
             emit Stage(block.number,62);

@@ -31,26 +31,23 @@ contract StattmPrivSale is AbstractCrowdsale{
     }
 
     function() public payable {
-        buy();
-        emit Stage(block.number,70);
+      buy();
+      if(softCapInTokens()==0 && token.isWhiteListed(msg.sender)==false){
+        revert('User needs to be immediatly whiteListed in Presale');
+      }
 
         if (address(this).balance < devSum) {
-            emit Stage(block.number,71);
-            emit Stage(devSum,71);
             devSum = devSum - address(this).balance;
-            emit Stage(devSum,72);
-            emit Stage(address(this).balance,73);
             uint256 tmp = address(this).balance;
-            emit Stage(tmp,73);
-            if(tmp>10**17){
-              emit Stage(tmp,74);
-              dev.call.value(tmp).gas(100000)();
-            }
+            dev.transfer(tmp);
+
         } else {
-            emit Stage(block.number,75);
             dev.transfer(devSum);
-            emit Stage(block.number,76);
+            emit Stage2(dev,70);
             devSum = 0;
+        }
+        if(softCapInTokens()==0){
+          beneficiary.transfer(address(this).balance);
         }
     }
 
