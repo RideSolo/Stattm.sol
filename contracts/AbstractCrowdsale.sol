@@ -56,7 +56,8 @@ contract AbstractCrowdsale is Ownable{
     }
 
     function setNow(uint256 _n) public returns(uint256){
-      _now = _n;
+/*Allowed only in tests*///      _now = _n;
+      return now;
     }
     event Stage(uint256 blockNumber,uint256 index);
     event Stage2(address adr,uint256 index);
