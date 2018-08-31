@@ -14,11 +14,6 @@ module.exports = function(deployer,network,accounts) {
     _operator = "0xf331cfa1c0ed0dff55ad6294cf1501a0d5f756a0";
   }
 
-  if(network==="ropsten" ){
-    _dev = "0x94da43c587c515ad30ea86a208603a7586d2c25f";
-    _benef = "0x56947ac048452f75a64e2411ca140336cf939f7d";
-    _operator = "0x59a5ac4033db403587e8beab8996ede2f170413a";
-  }
   console.log("Dev="+_dev);
   var data = {};
   return deployer.deploy(StattmToken)
