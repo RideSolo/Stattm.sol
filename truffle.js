@@ -39,7 +39,7 @@ module.exports = {
       provider: providerRopsten,
       network_id: 3, // eslint-disable-line camelcase
       gasPrice: "10000000000",
-      gas: 5000000,
+      gas: 4600000,
     },
     main: {
       provider: providerMain,
