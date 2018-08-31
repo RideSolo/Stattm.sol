@@ -1,6 +1,15 @@
 pragma solidity ^0.4.24;
 //truffle-flattener contracts/StattmPrivSale.sol
+/*
+Author of  StattmPrivSale, AbstractCrowdsale, StattmITO, StattmITO, StattmToken is Adam Skrodzki
+And those contracts are under MIT license, remaining contracts are zeppelin-solidity: version 1.12.0
+and are licensed under their own terms
 
+https://www.linkedin.com/in/adam-skrodzki-521051b/
+https://github.com/adamskrodzki/
+
+
+*/
 
 
 // File: zeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol
