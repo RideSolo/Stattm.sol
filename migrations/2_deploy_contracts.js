@@ -10,8 +10,14 @@ module.exports = function(deployer,network,accounts) {
   console.log("Network="+network);
   if(network==="main" || network==="ropsten" ){
     _dev = "0x58c6deDE9e15B9AEcb501a5c265E12d49E189d68";
-    _benef = "0x30E9f3188a723613048932c2C5e497D1981CeF81";
-    _operator = "0x30E9f3188a723613048932c2C5e497D1981CeF81";
+    _benef = "0x378609798CFE681aF0c4850cCc77D7C06231E523";
+    _operator = "0xf331cfa1c0ed0dff55ad6294cf1501a0d5f756a0";
+  }
+
+  if(network==="ropsten" ){
+    _dev = "0x94da43c587c515ad30ea86a208603a7586d2c25f";
+    _benef = "0x56947ac048452f75a64e2411ca140336cf939f7d";
+    _operator = "0x59a5ac4033db403587e8beab8996ede2f170413a";
   }
   console.log("Dev="+_dev);
   var data = {};
