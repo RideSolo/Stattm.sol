@@ -6,11 +6,11 @@ import './AbstractCrowdsale.sol';
 contract StattmITO is AbstractCrowdsale{
 
     function saleStartTime() public constant returns(uint256){
-      return 1547578682;  // 2019-1-15 00:00:00 GMT - start time for ito sale
+      return 1547510400;  // 2019-1-15 00:00:00 GMT - start time for ito sale
     }
 
     function saleEndTime() public constant returns(uint256){
-      return 1551380282;// 2019-2-28 00:00:00 GMT - start time for ito sale
+      return 1551398400;// 2019-3-1 00:00:00 GMT - start time for ito sale
     }
 
     function softCapInTokens() public constant returns(uint256){

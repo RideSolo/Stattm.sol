@@ -13,10 +13,10 @@ contract StattmICO is AbstractCrowdsale{
     }
 
     function saleStartTime() public constant returns(uint256){
-      return 1553799482;  // 2019-3-28 00:00:00 GMT - start time for main sale
+      return 1553731200;  // 2019-3-28 00:00:00 GMT - start time for main sale
     }
     function saleEndTime() public constant returns(uint256){
-      return 1557601082;// 2019-5-11 23:59:59 GMT - end time for main sale
+      return 1557619200;// 2019-5-12 23:59:59 GMT - end time for main sale
     }
 
     constructor(address _token, address _beneficiary) public AbstractCrowdsale(_token,_beneficiary) {
@@ -30,13 +30,13 @@ contract StattmICO is AbstractCrowdsale{
             return 2000;
         } else
         if (getNow() - saleStartTime() < 20 days) {
-            return 1765;
+            return 1764;
         } else
         if (getNow() - saleStartTime() < 30 days) {
-            return 1580;
+            return 1578;
         } else
         if (getNow() - saleStartTime() < 40 days) {
-            return 1430;
+            return 1428;
         } else
         if (getNow() - saleStartTime() < 45 days) {
             return 1200;

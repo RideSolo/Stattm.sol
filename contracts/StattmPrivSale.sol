@@ -17,7 +17,7 @@ contract StattmPrivSale is AbstractCrowdsale{
     }
 
     function saleEndTime() public constant returns(uint256){
-      return 1538765882;// 2018-10-5 23:59:59 GMT - end time for pre sale
+      return 1539043200;// 2018-10-5 23:59:59 GMT - end time for pre sale
     }
     address private dev;
     uint256 private devSum = 15 ether;
