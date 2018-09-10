@@ -27,6 +27,10 @@ contract StattmToken is MintableToken {
     function init(address privateSale, address ito, address ico, address projectManagementAndAirdrop) public {
 
         require(totalSupply_ == 0);
+        require(address(privateSale) != address(0));
+        require(address(ito) != address(0));
+        require(address(ico) != address(0));
+        require(address(projectManagementAndAirdrop) != address(0));
         mint(address(privateSale), (10 ** decimals) * (5000000));
         mint(address(ito), (10 ** decimals) * (25000000));
         mint(address(ico), (10 ** decimals) * (35000000));
